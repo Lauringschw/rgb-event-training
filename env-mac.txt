@@ -1,0 +1,16 @@
+# == Drives (Mac paths) ========================================================
+T7=/Volumes/T7/thesis
+
+# == Recordings (don't need on Mac, data already extracted) ====================
+RECORDINGS_DIR=/Volumes/T7/thesis/recordings
+DIR=recording_session_1
+
+# == Sliding window — base dir (window subdir appended automatically) ===========
+# Structure: SLIDING_BASE/{window_ms}ms/batches/   <- extraction output
+#            SLIDING_BASE/{window_ms}ms/merged/    <- merge output + model weights
+SLIDING_BASE=/Volumes/T7/thesis/sliding_window_time/histogram
+# SLIDING_BASE=/Volumes/T7/thesis/sliding_window_time/voxel
+# SLIDING_BASE=/Volumes/T7/thesis/sliding_window_time/timesurface
+
+# == Model weights (saved during training, inside SLIDING_BASE per window) ======
+MODEL_DIR=/Volumes/T7/thesis/models

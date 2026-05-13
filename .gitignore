@@ -1,0 +1,12 @@
+triggers.csv
+triggers_triggers.csv
+
+basler_frame_timestamps.npy
+model_t_initial.pth
+model_t_early.pth
+model_t_mid.pth
+model_t_late.pth
+testing/__pycache__/
+experiments/
+rqs_shared/__pycache__/
+.env

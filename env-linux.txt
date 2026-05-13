@@ -1,0 +1,17 @@
+# == Drives (Linux paths) ======================================================
+T7=/media/lau/T7/thesis
+SEAGATE=/media/lau/seagate
+
+# == Recordings (source — Seagate) =============================================
+RECORDINGS_DIR=/media/lau/seagate
+DIR=trial2
+# full path: $RECORDINGS_DIR/$DIR/rock/, /paper/, /scissor/
+
+# == Sliding window (base — repr and window size appended automatically) ========
+# Structure: SLIDING_BASE/{10ms,20ms,...}/batches/
+#            SLIDING_BASE/{10ms,20ms,...}/merged/
+SLIDING_BASE=/media/lau/T7/thesis/sliding_window_time/timesurface
+
+# == Model weights =============================================================
+MODEL_DIR=/media/lau/T7/thesis/models
+

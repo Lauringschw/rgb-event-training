@@ -1,0 +1,28 @@
+============== EXTRACT AND MERGE
+for ms in 10 20 30 40 50 60 80 90 100; do
+  python3 sliding_window/timesurface/extract_samples_timesurface.py --window_ms $ms
+  python3 sliding_window/timesurface/merge_timesurface.py --window_ms $ms
+done
+
+============== TRAINING
+
+for ms in 10 20 30 40 50 60 80 90 100; do
+  python3 sliding_window/timesurface/train_timesurface.py --window_ms $ms
+done
+
+============ TEST EXTRACT AND EVALUATE
+
+for ms in 10 20 30 40 50 60 80 90 100; do
+  python3 extract_test_samples.py --repr timesurface --window_ms $ms
+  python3 evaluate.py --repr timesurface --window_ms $ms
+done
+
+================================================================================================
+
+for ms in 10 20 30 40 50 60 70 80 90 100; do
+  python3 sliding_window/timesurface/extract_samples_timesurface.py --window_ms $ms
+  python3 sliding_window/timesurface/merge_timesurface.py --window_ms $ms
+  python3 sliding_window/timesurface/train_timesurface.py --window_ms $ms
+  python3 extract_test_samples.py --repr timesurface --window_ms $ms
+  python3 evaluate.py --repr timesurface --window_ms $ms
+done
