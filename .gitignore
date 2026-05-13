@@ -9,4 +9,4 @@ model_t_late.pth
 testing/__pycache__/
 experiments/
 rqs_shared/__pycache__/
-.env
+
