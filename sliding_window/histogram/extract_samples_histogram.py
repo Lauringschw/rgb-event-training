@@ -36,6 +36,7 @@ def events_to_histogram(events, height=SENSOR_HEIGHT, width=SENSOR_WIDTH,
     histogram = np.zeros((2, height, width), dtype=np.float32)
     on_mask  = p == 1
     off_mask = ~on_mask
+    # ch 0 = ON events, ch 1 = OFF events (unsigned counts)
     np.add.at(histogram[0], (y[on_mask],  x[on_mask]),  1)
     np.add.at(histogram[1], (y[off_mask], x[off_mask]), 1)
     return histogram
@@ -166,7 +167,8 @@ if __name__ == "__main__":
                 total_processed += 1
             else:
                 total_failed += 1
-
+            
+            # Incremented even on failure
             recording_id += 1
 
         print(f"\n{gesture.upper()}: {gesture_ok} recordings, {gesture_samples} samples")

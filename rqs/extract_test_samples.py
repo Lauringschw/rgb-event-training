@@ -53,6 +53,7 @@ def to_voxel(events):
     t_min, t_max = t.min(), t.max()
     t_norm  = np.zeros(len(t)) if t_max == t_min else (t - t_min) / (t_max - t_min)
     bin_idx = np.clip((t_norm * N_BINS).astype(np.int32), 0, N_BINS - 1)
+    # ON=+1, OFF=−1; signed accumulation preserves net polarity per bin
     weights = np.where(p == 1, 1.0, -1.0).astype(np.float32)
     np.add.at(out, (bin_idx, y, x), weights)
     return out

@@ -13,7 +13,7 @@ SENSOR_WIDTH  = 640
 ORIG_HEIGHT   = 720
 ORIG_WIDTH    = 1280
 N_BINS        = 5
-EXTRACTION_RANGE_US        = 300_000
+EXTRACTION_RANGE_US        = 300_000   # 300ms total extraction window
 BATCH_SIZE                 = 500
 MAX_RECORDINGS_PER_GESTURE = 320
 
@@ -47,8 +47,10 @@ def events_to_voxel(events):
         bin_idx = np.zeros(len(t), dtype=np.int32)
     else:
         t_norm  = (t - t_min) / (t_max - t_min)
+        # Clip needed: t_norm==1.0 would produce bin index N_BINS without it
         bin_idx = np.clip((t_norm * N_BINS).astype(np.int32), 0, N_BINS - 1)
 
+    # ON=+1, OFF=−1; signed accumulation preserves net polarity per bin
     weights = np.where(p == 1, 1.0, -1.0).astype(np.float32)
     np.add.at(voxel, (bin_idx, y, x), weights)
     return voxel
@@ -175,6 +177,7 @@ if __name__ == "__main__":
             else:
                 total_failed += 1
 
+            # Incremented on failure
             recording_id += 1
 
         print(f"\n{gesture.upper()}: {gesture_ok} recordings, {gesture_samples} samples")

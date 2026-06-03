@@ -12,7 +12,7 @@ SENSOR_HEIGHT = 360
 SENSOR_WIDTH  = 640
 ORIG_HEIGHT   = 720
 ORIG_WIDTH    = 1280
-EXTRACTION_RANGE_US        = 300_000
+EXTRACTION_RANGE_US        = 300_000   # 300ms total extraction window
 BATCH_SIZE                 = 500
 MAX_RECORDINGS_PER_GESTURE = 320
 
@@ -41,6 +41,7 @@ def events_to_timesurface(events):
 
     # most recent timestamp per pixel
     time_surface = np.zeros((SENSOR_HEIGHT, SENSOR_WIDTH), dtype=np.float64)
+    # Most recent timestamp wins; unfired pixels remain 0
     np.maximum.at(time_surface, (y, x), t)
 
     t_min = t.min()
@@ -49,6 +50,7 @@ def events_to_timesurface(events):
     result = np.zeros((1, SENSOR_HEIGHT, SENSOR_WIDTH), dtype=np.float32)
     mask = time_surface > 0
     if t_max > t_min:
+        # Recency encoding: 0 = oldest event in window, 1 = most recent
         result[0][mask] = ((time_surface[mask] - t_min) / (t_max - t_min)).astype(np.float32)
     else:
         result[0][mask] = 1.0
@@ -174,7 +176,8 @@ if __name__ == "__main__":
                 total_processed += 1
             else:
                 total_failed += 1
-
+            
+            # Incremented even on failure
             recording_id += 1
 
         print(f"\n{gesture.upper()}: {gesture_ok} recordings, {gesture_samples} samples")

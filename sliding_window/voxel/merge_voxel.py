@@ -38,12 +38,14 @@ def merge(window_ms: int):
 
     print("Counting samples...")
     total_samples = sum(len(np.load(f)) for f in label_files)
+    # Slices off the batch dimension
     sample_shape  = np.load(data_files[0]).shape[1:]   # (5, 360, 640)
 
     bytes_needed = total_samples * int(np.prod(sample_shape)) * 4
     gb_needed    = bytes_needed / 1e9
     stat         = os.statvfs(SLIDING_DIR_MERGED)
     available_gb = (stat.f_bavail * stat.f_frsize) / 1e9
+    # 500: assumed upper bound on samples per batch
     one_batch_gb = int(np.prod(sample_shape)) * 4 * 500 / 1e9
     peak_gb      = gb_needed + one_batch_gb
 
@@ -84,6 +86,7 @@ def merge(window_ms: int):
         df.unlink(); lf.unlink(); rf.unlink()
         print(f"=>  written + deleted  ({current_idx:,}/{total_samples:,})")
 
+    # Deleting the memmap references flushes pending writes to disk
     del mm_data, mm_labels, mm_recids
     print("\nFlushed to disk.")
 

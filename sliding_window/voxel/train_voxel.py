@@ -48,6 +48,7 @@ class MmapVoxelDataset(Dataset):
     def __getitem__(self, idx):
         i = self.indices[idx]
         x = self.data[i].copy().astype(np.float32)
+        # Per-sample max normalisation (not dataset-level) --> keeps polarity sign
         max_val = np.abs(x).max()
         if max_val > 0:
             x = x / max_val
@@ -79,6 +80,7 @@ def get_split(labels, recording_ids, test_size=0.20, val_size=0.10):
         unique_recs, rec_labels, test_size=test_size, random_state=42, stratify=rec_labels)
 
     rec_labels_temp = np.array([labels[recording_ids == r][0] for r in recs_temp])
+    # Adjust val fraction relative to the temp pool (after test is removed)
     adjusted_val    = val_size / (1.0 - test_size)
 
     recs_train, recs_val, _, _ = train_test_split(
@@ -153,6 +155,7 @@ if __name__ == "__main__":
         if not p.exists():
             raise FileNotFoundError(f"Missing: {p}\nRun merge_voxel.py --window_ms {args.window_ms} first.")
 
+    # Avoids loading full array into RAM
     raw_data      = np.load(data_path, mmap_mode='r')
     raw_labels    = np.load(labels_path)
     recording_ids = np.load(recids_path)
@@ -161,10 +164,10 @@ if __name__ == "__main__":
     print(f"Data shape: {raw_data.shape}")
 
     # == split =================================================================
-    # Fixed seeds ensure identical split across all window sizes
     recs_train, recs_val, recs_test = get_split(raw_labels, recording_ids)
 
     test_ids_path = SLIDING_BASE / "test_recording_ids.npy"
+    # Saved once at root --> shared across all window sizes for consistent eval
     np.save(test_ids_path, recs_test)
     print(f"Saved test recording IDs: {test_ids_path}")
 
@@ -194,9 +197,11 @@ if __name__ == "__main__":
     model = ResNet18Voxel(n_bins=N_BINS).to(device)
 
     class_counts  = np.array([np.sum(raw_labels[train_idx] == i) for i in range(3)])
+    # Inverse-frequency weighting, scaled so weights sum to approx n_classes
     class_weights = torch.FloatTensor(1.0 / class_counts) * 3
     criterion     = nn.CrossEntropyLoss(weight=class_weights.to(device))
     optimizer     = optim.Adam(model.parameters(), lr=0.001)
+    # Tracking val accuracy (higher = better), not loss
     scheduler     = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor=0.5, patience=3)
 
     total_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
